@@ -1,6 +1,6 @@
 import React from 'react'
-import Footer from '../components/Footer'
-import Nav from '../components/Nav'
+import Footer from '../components/Footer/MainFooter'
+import Nav from '../components/Nav/MainNav'
 
 export default function MainLayout({ children }) {
     return (

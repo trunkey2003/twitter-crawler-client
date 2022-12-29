@@ -1,8 +1,65 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import TwitterLinkInput from "../components/Input/TwitterLinkInput";
+import AnalyzeDataKVBox from "../components/KeyValueBox/AnalyzeDataKVBox";
+import {
+  getFormattedDatetimeString,
+  isValidatedTwitterPostLink,
+} from "../function";
+import Axios from "../function/Axios";
 import MainLayout from "../layouts/MainLayout";
 
 export default function Home() {
   const [twitterLinkInput, setTwitterLinkInput] = useState("");
+  const [errorValidation, setErrorValidation] = useState({});
+  const [twitterStatistics, setTwitterStatistics] = useState({});
+  const [loadingGetResult, setLoadingGetResult] = useState(false);
+  const [loadingSyncData, setLoadingSyncData] = useState(false);
+
+  const handleValidateTwitterLink = () => {
+    const error = {};
+    let isValid = true;
+    if (twitterLinkInput === "") {
+      error.twitterLinkInput = "Please enter your twitter post link";
+      isValid = false;
+    } else if (!isValidatedTwitterPostLink(twitterLinkInput)) {
+      error.twitterLinkInput = "Please enter a valid twitter post link";
+      isValid = false;
+    }
+    setErrorValidation(error);
+    return isValid;
+  };
+
+  const handleTwitterLinkInputSubmit = () => {
+    if (!handleValidateTwitterLink()) return;
+    setLoadingGetResult(true);
+    handleGetTwitterAnalysis(twitterLinkInput).finally(() =>
+      setLoadingGetResult(false)
+    );
+  };
+
+  const handleGetTwitterAnalysis = (twitterPostUrl) => {
+    const queriesParams = new URLSearchParams({
+      twitterPostUrl: twitterPostUrl,
+    }).toString();
+    return Axios.get("/api/v1/twitter/getTwitterAnalysis?" + queriesParams)
+      .then((res) => {
+        console.log(res);
+        setTwitterStatistics(res.data.data);
+      })
+      .catch(() => {
+        setErrorValidation({
+          ...errorValidation,
+          twitterLinkInput: "Look like your link is invalid, please try again!",
+        });
+      });
+  };
+
+  const handleSyncDataTwitterPost = () => {
+    setLoadingSyncData(true);
+    handleGetTwitterAnalysis(twitterStatistics.tweetUrl).finally(() =>
+      setLoadingSyncData(false)
+    );
+  };
 
   return (
     <MainLayout>
@@ -10,23 +67,19 @@ export default function Home() {
         className="w-full h-[100vh] md:h-[80vh] bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: "url('/videos/home-bg-2.gif')" }}
       >
-        <div className="h-full w-full absolute z-10 bg-black bg-opacity-80 flex flex-wrap justify-center py-[10vh] text-white">
+        <div className="h-full w-full absolute z-10 bg-black bg-opacity-60 flex flex-wrap justify-center py-[10vh] text-white">
           <div className="text-center">
             <h1 className="py-4 text-[50px] font-bold">
-              Analyze your <span className="text-primary">Twitter</span> Post
+              Analyze your <span className="text-primary">Twitter</span> post
               for better interaction
             </h1>
-            <div
-              className={`mx-auto mb-12 w-fit flex justify-center items-center relative`}
-            >
-              <input
-                name="twitterLinkInput"
-                className="border-b border-white bg-transparent h-[40px] w-[400px] w-full text-center min-w-[15vw] max-w-[60vw] focus:outline-none focus:scale-150 px-2 "
-                value={twitterLinkInput}
-                onChange={(e) => setTwitterLinkInput(e.target.value)}
-              ></input>
-            </div>
-            <div className="relative py-16">
+            <TwitterLinkInput
+              value={twitterLinkInput}
+              onChange={(e) => setTwitterLinkInput(e.target.value)}
+              onSubmit={handleTwitterLinkInputSubmit}
+              errorValidation={errorValidation}
+            />
+            <div className="relative py-[100px]">
               <div className="absolute-center">
                 <svg className="circle-svg" viewBox="0 0 500 500">
                   <defs>
@@ -47,29 +100,105 @@ export default function Home() {
                   </defs>
                   <text
                     className="circle-text fill-gray-300"
-                    dy="70"
-                    textLength="1220"
+                    dy="40"
+                    textLength="646"
+                    textRendering={"geometricPrecision"}
                   >
                     <textPath xlinkHref="#textcircle_top">
-                      Analyze Your Twitter Post
+                      Get The Result For Free
                     </textPath>
                   </text>
                 </svg>
               </div>
-              <div className="absolute-center">
+              <button
+                className="absolute-center hover:opacity-80"
+                onClick={handleTwitterLinkInputSubmit}
+              >
                 <div className="showreels-div">
-                  {/* <img className="showreels-video animate-[spin_10s_linear_infinite] hover:cursor-pointer" src="/images/seo.webp"></img> */}
                   <img
-                    className="absolute rounded-full hover:animate-[spin_10s_linear_infinite]"
+                    className={`absolute rounded-full ${
+                      loadingGetResult
+                        ? "animate-[spin_1s_ease-in-out_infinite]"
+                        : ""
+                    }`}
                     alt="twitter"
                     src="/images/twitter.jpg"
                   ></img>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {twitterStatistics.tweetUrl && (
+        <div className="p-5 bg-gray-200">
+          <div>
+            SEO Analyze <i className="fa-solid fa-chevron-right mx-2"></i>
+            Twitter Post Analyze{" "}
+            <i className="fa-solid fa-chevron-right mx-2"></i>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={twitterStatistics.tweetUrl}
+              className="text-primary underline"
+            >
+              {twitterStatistics.tweetUrl}
+            </a>
+            <h2 className="text-[2rem] font-medium py-2">
+              Analyze result from your{" "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={twitterStatistics.tweetUrl}
+                className="text-primary underline"
+              >
+                Twitter Post
+              </a>
+            </h2>
+            <div className="bg-white py-4 px-10 leading-[3rem]">
+              <h3 className="text-[1.2rem] font-semibold">
+                <div className="leading-[1.5rem]">
+                  Post Detail
+                  <br />
+                  <span className="text-sm font-normal text-gray-500">
+                    <i className="fa-regular fa-clock"></i> Get Data at :{" "}
+                    {getFormattedDatetimeString(twitterStatistics.fetchTime)}
+                  </span>
+                  <button
+                    className={`ml-2 fa-solid fa-rotate ${
+                      loadingSyncData
+                        ? "animate-[spin_1s_ease-in-out_infinite]"
+                        : ""
+                    }`}
+                    onClick={handleSyncDataTwitterPost}
+                    title="sync data"
+                  ></button>
+                </div>
+              </h3>
+
+              <AnalyzeDataKVBox name={"Tweet ID"}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={twitterStatistics.tweetUrl}
+                >
+                  {twitterStatistics.tweetID}
+                </a>
+              </AnalyzeDataKVBox>
+              <AnalyzeDataKVBox name={"Auther Name"}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={twitterStatistics.tweetDetails.autherProfileUrl}
+                >
+                  {twitterStatistics.tweetDetails.autherProfileUrl}
+                </a>
+              </AnalyzeDataKVBox>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
