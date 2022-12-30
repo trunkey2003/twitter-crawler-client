@@ -1,9 +1,10 @@
 import React from 'react'
+import AnalyzeDataKeyBox from './AnalyzeDataKeyBox'
 
 export default function AnalyzeDataKVBox({ children, name }) {
     return (
         <div className="flex">
-            <span className="w-[200px]">{name}</span>
+            <AnalyzeDataKeyBox title={name}/>
             <div className="font-medium">
                 {children}
             </div>

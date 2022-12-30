@@ -1,19 +1,24 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import TwitterLinkInput from "../components/Input/TwitterLinkInput";
+import AnalyzeDataKeyBox from "../components/KeyValueBox/AnalyzeDataKeyBox";
 import AnalyzeDataKVBox from "../components/KeyValueBox/AnalyzeDataKVBox";
+import TwitterReplyBox from "../components/Reply/TwitterReplyBox";
 import {
   getFormattedDatetimeString,
   isValidatedTwitterPostLink,
 } from "../function";
 import Axios from "../function/Axios";
-import MainLayout from "../layouts/MainLayout";
+import HomeLayout from "../layouts/HomeLayout";
 
 export default function Home() {
+  const tweetAnalysisResultRef = useRef(null);
+
   const [twitterLinkInput, setTwitterLinkInput] = useState("");
   const [errorValidation, setErrorValidation] = useState({});
   const [twitterStatistics, setTwitterStatistics] = useState({});
   const [loadingGetResult, setLoadingGetResult] = useState(false);
   const [loadingSyncData, setLoadingSyncData] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
 
   const handleValidateTwitterLink = () => {
     const error = {};
@@ -32,9 +37,10 @@ export default function Home() {
   const handleTwitterLinkInputSubmit = () => {
     if (!handleValidateTwitterLink()) return;
     setLoadingGetResult(true);
-    handleGetTwitterAnalysis(twitterLinkInput).finally(() =>
-      setLoadingGetResult(false)
-    );
+    handleGetTwitterAnalysis(twitterLinkInput).finally(() => {
+      setLoadingGetResult(false);
+      tweetAnalysisResultRef.current.scrollIntoView({ behavior: "smooth" });
+    });
   };
 
   const handleGetTwitterAnalysis = (twitterPostUrl) => {
@@ -62,9 +68,9 @@ export default function Home() {
   };
 
   return (
-    <MainLayout>
+    <HomeLayout>
       <div
-        className="w-full h-[100vh] md:h-[80vh] bg-cover bg-center relative overflow-hidden"
+        className="w-full h-[100vh] md:h-[100vh] bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: "url('/videos/home-bg-2.gif')" }}
       >
         <div className="h-full w-full absolute z-10 bg-black bg-opacity-60 flex flex-wrap justify-center py-[10vh] text-white">
@@ -116,11 +122,10 @@ export default function Home() {
               >
                 <div className="showreels-div">
                   <img
-                    className={`absolute rounded-full ${
-                      loadingGetResult
-                        ? "animate-[spin_1s_ease-in-out_infinite]"
-                        : ""
-                    }`}
+                    className={`absolute rounded-full ${loadingGetResult
+                      ? "animate-[spin_1s_ease-in-out_infinite]"
+                      : ""
+                      }`}
                     alt="twitter"
                     src="/images/twitter.jpg"
                   ></img>
@@ -131,74 +136,203 @@ export default function Home() {
         </div>
       </div>
 
-      {twitterStatistics.tweetUrl && (
-        <div className="p-5 bg-gray-200">
-          <div>
-            SEO Analyze <i className="fa-solid fa-chevron-right mx-2"></i>
-            Twitter Post Analyze{" "}
-            <i className="fa-solid fa-chevron-right mx-2"></i>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={twitterStatistics.tweetUrl}
-              className="text-primary underline"
-            >
-              {twitterStatistics.tweetUrl}
-            </a>
-            <h2 className="text-[2rem] font-medium py-2">
-              Analyze result from your{" "}
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href={twitterStatistics.tweetUrl}
-                className="text-primary underline"
-              >
-                Twitter Post
-              </a>
-            </h2>
-            <div className="bg-white py-4 px-10 leading-[3rem]">
-              <h3 className="text-[1.2rem] font-semibold">
-                <div className="leading-[1.5rem]">
-                  Post Detail
-                  <br />
-                  <span className="text-sm font-normal text-gray-500">
-                    <i className="fa-regular fa-clock"></i> Get Data at :{" "}
-                    {getFormattedDatetimeString(twitterStatistics.fetchTime)}
-                  </span>
-                  <button
-                    className={`ml-2 fa-solid fa-rotate ${
-                      loadingSyncData
-                        ? "animate-[spin_1s_ease-in-out_infinite]"
-                        : ""
-                    }`}
-                    onClick={handleSyncDataTwitterPost}
-                    title="sync data"
-                  ></button>
-                </div>
-              </h3>
-
-              <AnalyzeDataKVBox name={"Tweet ID"}>
+      <div id="tweet-analysis-result" ref={tweetAnalysisResultRef}>
+        {twitterStatistics.tweetUrl && (
+          <div className="p-5 bg-gray-200">
+            {/* {JSON.stringify(twitterStatistics)} */}
+            <div>
+              <div id="header-tweet-analysis-result">
+                SEO Analyze <i className="fa-solid fa-chevron-right mx-2"></i>
+                Twitter Post Analyze{" "}
+                <i className="fa-solid fa-chevron-right mx-2"></i>
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
                   href={twitterStatistics.tweetUrl}
+                  className="text-primary hover:underline"
                 >
-                  {twitterStatistics.tweetID}
+                  {twitterStatistics.tweetUrl}
                 </a>
-              </AnalyzeDataKVBox>
-              <AnalyzeDataKVBox name={"Auther Name"}>
+              </div>
+
+              <h2 className="text-[2rem] font-medium py-2">
+                Analyze result from your{" "}
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={twitterStatistics.tweetDetails.autherProfileUrl}
+                  href={twitterStatistics.tweetUrl}
+                  className="text-primary hover:underline"
                 >
-                  {twitterStatistics.tweetDetails.autherProfileUrl}
+                  Twitter Post
                 </a>
-              </AnalyzeDataKVBox>
+              </h2>
+
+              <div className="bg-white py-4 px-10 leading-[3rem]">
+                <h3 className="text-[1.2rem] font-semibold">
+                  <div className="leading-[1.5rem]">
+                    Post Detail
+                    <br />
+                    <span className="text-sm font-normal text-gray-500">
+                      <i className="fa-regular fa-clock"></i> Get Data at :{" "}
+                      {getFormattedDatetimeString(twitterStatistics.fetchTime)}
+                    </span>
+                    <button
+                      className={`ml-2 fa-solid fa-rotate ${loadingSyncData
+                        ? "animate-[spin_1s_ease-in-out_infinite]"
+                        : ""
+                        }`}
+                      onClick={handleSyncDataTwitterPost}
+                      title="sync data"
+                    ></button>
+                  </div>
+                </h3>
+
+                <div className="mt-2 mb-5 flex">
+                  <h2 className="w-[200px]">User avatar</h2>
+                  <a
+                    className="w-fit p-1 border border-gray-300 hover:border-gray-600 rounded"
+                    href={twitterStatistics.tweetDetails?.autherAvatar}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={twitterStatistics.tweetDetails?.autherAvatar}
+                      alt="user-avatar rounded"
+                      width={60}
+                      height={60}
+                    ></img>
+                  </a>
+                </div>
+
+                <AnalyzeDataKVBox name={"Tweet ID"}>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    href={twitterStatistics.tweetUrl}
+                  >
+                    {twitterStatistics.tweetID}
+                  </a>
+                </AnalyzeDataKVBox>
+
+                <AnalyzeDataKVBox name={"Auther Name"}>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    href={twitterStatistics.tweetDetails?.autherProfileUrl}
+                  >
+                    {twitterStatistics.tweetDetails?.autherName}
+                  </a>
+                </AnalyzeDataKVBox>
+
+                <AnalyzeDataKVBox name={"Auther Username"}>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    href={twitterStatistics.tweetDetails?.autherProfileUrl}
+                  >
+                    {twitterStatistics.tweetDetails?.autherUserName}
+                  </a>
+                </AnalyzeDataKVBox>
+
+                <AnalyzeDataKVBox name={"Time Posted"}>
+                  <span>
+                    {getFormattedDatetimeString(twitterStatistics.tweetDetails?.timePosted)}
+                  </span>
+                </AnalyzeDataKVBox>
+
+                <div id="tweet-content">
+                  <AnalyzeDataKeyBox title={"Tweet Content"} />
+                  <p className="whitespace-pre-wrap	bg-gray-900 text-white rounded p-2">
+                    {twitterStatistics.tweetDetails?.tweetText}
+                    <div className="flex flex-wrap">
+                      {Array.isArray(
+                        twitterStatistics.tweetDetails?.tweetMedias
+                      ) &&
+                        twitterStatistics.tweetDetails?.tweetMedias.map(
+                          (media, index) => {
+                            if (media.image) {
+                              return (
+                                <a
+                                  href={media.image}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <div className="w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1" style={{ backgroundImage: `url(${media.image})` }}></div>
+                                </a>
+                              );
+                            } else if (media.videoPoster) {
+                              return (
+                                <a
+                                  href={twitterStatistics.tweetUrl}
+                                  className="flex items-center justify-center w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ backgroundImage: `url(${media.videoPoster})` }}
+                                >
+                                  <i class="fa-solid fa-play text-primary opacity-80 text-[40px]"></i>
+                                </a>
+                              );
+                            } else return null;
+                          }
+                        )}
+                    </div>
+                  </p>
+                </div>
+
+                <div id="tweet-interaction">
+                  <AnalyzeDataKeyBox title={"Tweet Interaction"} />
+                  <div id="tweet-interaction-box">
+                    <div className="p-5 bg-gray-900 text-white">
+                      <AnalyzeDataKVBox name={"Views"}>
+                        <span>
+                          <i class="fa-solid fa-eye"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.views}
+                        </span>
+                      </AnalyzeDataKVBox>
+
+                      <AnalyzeDataKVBox name={"Retweets"}>
+                        <span>
+                          <i class="fa-solid fa-retweet"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.retweets}
+                        </span>
+                      </AnalyzeDataKVBox>
+
+                      <AnalyzeDataKVBox name={"Quote Tweets"}>
+                        <span>
+                          <i class="fa-solid fa-quote-left"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.quoteTweets}
+                        </span>
+                      </AnalyzeDataKVBox>
+
+                      <AnalyzeDataKVBox name={"Likes"}>
+                        <span>
+                          <i class="fa-solid fa-thumbs-up"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.likes}
+                        </span>
+                      </AnalyzeDataKVBox>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="tweet-replies">
+                  <button onClick={() => setShowReplies(!showReplies)}>
+                    <AnalyzeDataKeyBox title={"Replies"} />
+                    <button className="ml-2">
+                      {showReplies ? <i class="fa-solid fa-chevron-down"></i> : <i class="fa-solid fa-chevron-up"></i>}
+                    </button>
+                  </button>
+                  {showReplies && <div id="tweet-replies-container" className="animate__animated animate__slideInUp animate__faster">
+                    {Array.isArray(twitterStatistics.tweetDetails?.tweetReplies) &&
+                      twitterStatistics.tweetDetails?.tweetReplies.map((reply, index) => {
+                        return <TwitterReplyBox key={index} reply={reply} index={index} />
+                      })
+                    }
+                  </div>}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </MainLayout>
+        )}
+      </div>
+    </HomeLayout>
   );
 }
