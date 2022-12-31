@@ -172,7 +172,7 @@ export default function Home() {
                 {twitterStatistics.tweetID}
               </a>
               <h2 className="text-[1.5rem] lg:text-[2rem] font-medium py-2">
-                Analyze result from your{" "}
+                Analysis result from your{" "}
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
