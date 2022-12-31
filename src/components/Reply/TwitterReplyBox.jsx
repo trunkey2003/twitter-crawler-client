@@ -58,7 +58,7 @@ export default function TwitterReplyBox({ reply, index }) {
       </AnalyzeDataKVBox>
 
       <AnalyzeDataKVBox name={"Time Posted"}>
-        <span className='text-sm'> 
+        <span className='text-sm'>
           {getFormattedDatetimeString(reply.tweetDetails?.timePosted)}
         </span>
       </AnalyzeDataKVBox>
@@ -66,6 +66,11 @@ export default function TwitterReplyBox({ reply, index }) {
       <div className='reply-tweet-content' id={`reply-tweet-content-${index}`}>
         <AnalyzeDataKeyBox title={"Tweet Content"} />
         <p className="whitespace-pre-wrap	bg-gray-300 text-gray-600 rounded p-2">
+          <span className='text-sm text-black bg-white p-2'>
+            <i class="fa-solid fa-reply mr-2"></i>
+            {reply.tweetDetails?.replyTo}
+          </span>
+          <br />
           {reply.tweetDetails?.tweetText}
           <div className="flex flex-wrap">
             {Array.isArray(
@@ -126,7 +131,7 @@ export default function TwitterReplyBox({ reply, index }) {
 
             <AnalyzeDataKVBox name={"Replies"}>
               <span>
-              <i class="fa-solid fa-reply"></i> {reply.tweetDetails?.tweetInteraction?.replies}
+                <i class="fa-solid fa-reply"></i> {reply.tweetDetails?.tweetInteraction?.replies}
               </span>
             </AnalyzeDataKVBox>
 

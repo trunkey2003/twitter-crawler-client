@@ -87,11 +87,11 @@ export default function Home() {
     <HomeLayout>
       <div
         className="w-full h-[100vh] md:h-[100vh] bg-cover bg-center relative overflow-hidden"
-        style={{ backgroundImage: "url('/videos/home-bg-2.gif')" }}
+        style={{ backgroundImage: "url('/images/bird.gif')" }}
       >
         <div className="h-full w-full absolute z-10 bg-black bg-opacity-60 flex flex-wrap justify-center py-[10vh] text-white">
           <div className="text-center">
-            <h1 className="py-4 text-[50px] font-bold">
+            <h1 className="py-4 text-[50px] font-bold animate__animated animate__slideInUp">
               Analyze your <span className="text-primary">Twitter</span> post
               for better interaction
             </h1>
@@ -133,18 +133,21 @@ export default function Home() {
                 </svg>
               </div> */}
               <button
-                className="absolute-center hover:opacity-80"
+                className="absolute-center hover:opacity-80 "
                 onClick={handleTwitterLinkInputSubmit}
               >
-                <div className="showreels-div">
+                <div className={`showreels-div ${loadingGetResult
+                  ? "animate-[spin_1s_ease-in-out_infinite]"
+                  : ""
+                  }`}>
                   <img
-                    className={`absolute rounded-full ${loadingGetResult
-                      ? "animate-[spin_1s_ease-in-out_infinite]"
-                      : ""
-                      }`}
+                    className={`absolute rounded-full animate__animated animate__rotateIn `}
                     alt="twitter"
-                    src="/images/twitter.jpg"
+                    src="/images/twitter.webp"
                   ></img>
+                  <div className="absolute top-[50%] left-[50%] text-black text-[1.2rem] -translate-x-1/2 -translate-y-1/2">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                  </div>
                 </div>
               </button>
             </div>

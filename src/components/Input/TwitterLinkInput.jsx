@@ -14,7 +14,7 @@ export default function TwitterLinkInput({ value, onChange, onSubmit, errorValid
     };
     return (
         <div
-            className={`mx-auto mb-12 w-fit relative ${scaleClass} transition-all duration-500 ease-in-out`}
+            className={`mx-auto mb-12 w-fit relative ${scaleClass} transition-all duration-500 ease-in-out animate__animated animate__slideInUp`}
         >
             <input
                 name="twitterLinkInput"

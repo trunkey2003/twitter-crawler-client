@@ -16,7 +16,7 @@ export default function HomeNav() {
   return (
     <nav className='fixed top-0 w-full h-[60px] z-30'>
       <TransparentNav/>
-      {(isScrolledFarFromTop) && <div className='fixed h-[60px] w-full bg-white z-20'></div>}
+      {(isScrolledFarFromTop) && <div className='fixed h-[60px] w-full bg-gray-900 z-20'></div>}
     </nav>
   )
 }
