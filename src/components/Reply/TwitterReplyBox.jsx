@@ -28,7 +28,7 @@ export default function TwitterReplyBox({ reply, index }) {
         <a
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline"
+          className="hover:underline text-sm"
           href={reply.tweetUrl}
         >
           {reply.tweetID}
@@ -46,7 +46,7 @@ export default function TwitterReplyBox({ reply, index }) {
         </a>
       </AnalyzeDataKVBox>
 
-      <AnalyzeDataKVBox name={"Auther Username"}>
+      <AnalyzeDataKVBox name={"Username"}>
         <a
           target="_blank"
           rel="noopener noreferrer"
@@ -58,7 +58,7 @@ export default function TwitterReplyBox({ reply, index }) {
       </AnalyzeDataKVBox>
 
       <AnalyzeDataKVBox name={"Time Posted"}>
-        <span>
+        <span className='text-sm'> 
           {getFormattedDatetimeString(reply.tweetDetails?.timePosted)}
         </span>
       </AnalyzeDataKVBox>

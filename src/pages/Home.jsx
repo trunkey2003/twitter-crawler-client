@@ -18,7 +18,8 @@ export default function Home() {
   const [twitterStatistics, setTwitterStatistics] = useState({});
   const [loadingGetResult, setLoadingGetResult] = useState(false);
   const [loadingSyncData, setLoadingSyncData] = useState(false);
-  const [showReplies, setShowReplies] = useState(false);
+  const [showReplies, setShowReplies] = useState(null);
+  const [trendingHashtags, setTrendingHashtags] = useState([]);
 
   const handleValidateTwitterLink = () => {
     const error = {};
@@ -37,10 +38,17 @@ export default function Home() {
   const handleTwitterLinkInputSubmit = () => {
     if (!handleValidateTwitterLink()) return;
     setLoadingGetResult(true);
-    handleGetTwitterAnalysis(twitterLinkInput).finally(() => {
+    handleGetFullTwitterAnalysis(twitterLinkInput).finally(() => {
       setLoadingGetResult(false);
       tweetAnalysisResultRef.current.scrollIntoView({ behavior: "smooth" });
     });
+  };
+
+  const handleGetFullTwitterAnalysis = (twitterPostUrl) => {
+    return Promise.all([
+      handleGetTwitterAnalysis(twitterPostUrl),
+      handleGetTrendingHashtags(),
+    ]);
   };
 
   const handleGetTwitterAnalysis = (twitterPostUrl) => {
@@ -60,9 +68,17 @@ export default function Home() {
       });
   };
 
+  const handleGetTrendingHashtags = () => {
+    return Axios.get("/api/v1/twitter/getTrendingHashtags")
+      .then((res) => {
+        setTrendingHashtags(res.data.data.trendingHashtags);
+      })
+      .catch((err) => { });
+  };
+
   const handleSyncDataTwitterPost = () => {
     setLoadingSyncData(true);
-    handleGetTwitterAnalysis(twitterStatistics.tweetUrl).finally(() =>
+    handleGetFullTwitterAnalysis(twitterStatistics.tweetUrl).finally(() =>
       setLoadingSyncData(false)
     );
   };
@@ -86,7 +102,7 @@ export default function Home() {
               errorValidation={errorValidation}
             />
             <div className="relative py-[100px]">
-              <div className="absolute-center">
+              {/* <div className="absolute-center">
                 <svg className="circle-svg" viewBox="0 0 500 500">
                   <defs>
                     <path
@@ -115,7 +131,7 @@ export default function Home() {
                     </textPath>
                   </text>
                 </svg>
-              </div>
+              </div> */}
               <button
                 className="absolute-center hover:opacity-80"
                 onClick={handleTwitterLinkInputSubmit}
@@ -138,24 +154,20 @@ export default function Home() {
 
       <div id="tweet-analysis-result" ref={tweetAnalysisResultRef}>
         {twitterStatistics.tweetUrl && (
-          <div className="p-5 bg-gray-200">
-            {/* {JSON.stringify(twitterStatistics)} */}
-            <div>
-              <div id="header-tweet-analysis-result">
-                SEO Analyze <i className="fa-solid fa-chevron-right mx-2"></i>
-                Twitter Post Analyze{" "}
-                <i className="fa-solid fa-chevron-right mx-2"></i>
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={twitterStatistics.tweetUrl}
-                  className="text-primary hover:underline"
-                >
-                  {twitterStatistics.tweetUrl}
-                </a>
-              </div>
-
-              <h2 className="text-[2rem] font-medium py-2">
+          <div className="p-5 bg-gray-200 flex flex-wrap">
+            <div id="header-tweet-analysis-result" className="w-full">
+              SEO Analyze <i className="fa-solid fa-chevron-right mx-2"></i>
+              Twitter Post Analyze{" "}
+              <i className="fa-solid fa-chevron-right mx-2"></i>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={twitterStatistics.tweetUrl}
+                className="text-primary hover:underline"
+              >
+                {twitterStatistics.tweetID}
+              </a>
+              <h2 className="text-[1.5rem] lg:text-[2rem] font-medium py-2">
                 Analyze result from your{" "}
                 <a
                   target="_blank"
@@ -163,11 +175,14 @@ export default function Home() {
                   href={twitterStatistics.tweetUrl}
                   className="text-primary hover:underline"
                 >
-                  Twitter Post
-                </a>
+                  Twitter
+                </a>{" "}
+                Post
               </h2>
-
-              <div className="bg-white py-4 px-10 leading-[3rem]">
+            </div>
+            {/* {JSON.stringify(twitterStatistics)} */}
+            <div id="detail-analysis" className="w-full lg:w-2/3">
+              <div className="bg-white py-4 px-5 md:px-10 leading-[3rem]">
                 <h3 className="text-[1.2rem] font-semibold">
                   <div className="leading-[1.5rem]">
                     Post Detail
@@ -204,42 +219,46 @@ export default function Home() {
                   </a>
                 </div>
 
-                <AnalyzeDataKVBox name={"Tweet ID"}>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                    href={twitterStatistics.tweetUrl}
-                  >
-                    {twitterStatistics.tweetID}
-                  </a>
-                </AnalyzeDataKVBox>
+                <div className="flex flex-wrap justify-between">
+                  <AnalyzeDataKVBox name={"Tweet ID"}>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline text-sm"
+                      href={twitterStatistics.tweetUrl}
+                    >
+                      {twitterStatistics.tweetID}
+                    </a>
+                  </AnalyzeDataKVBox>
 
-                <AnalyzeDataKVBox name={"Auther Name"}>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                    href={twitterStatistics.tweetDetails?.autherProfileUrl}
-                  >
-                    {twitterStatistics.tweetDetails?.autherName}
-                  </a>
-                </AnalyzeDataKVBox>
+                  <AnalyzeDataKVBox name={"Auther Name"}>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                      href={twitterStatistics.tweetDetails?.autherProfileUrl}
+                    >
+                      {twitterStatistics.tweetDetails?.autherName}
+                    </a>
+                  </AnalyzeDataKVBox>
 
-                <AnalyzeDataKVBox name={"Auther Username"}>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                    href={twitterStatistics.tweetDetails?.autherProfileUrl}
-                  >
-                    {twitterStatistics.tweetDetails?.autherUserName}
-                  </a>
-                </AnalyzeDataKVBox>
+                  <AnalyzeDataKVBox name={"Username"}>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                      href={twitterStatistics.tweetDetails?.autherProfileUrl}
+                    >
+                      {twitterStatistics.tweetDetails?.autherUserName}
+                    </a>
+                  </AnalyzeDataKVBox>
+                </div>
 
-                <AnalyzeDataKVBox name={"Time Posted"}>
-                  <span>
-                    {getFormattedDatetimeString(twitterStatistics.tweetDetails?.timePosted)}
+                <AnalyzeDataKVBox name={"Time"}>
+                  <span className="text-sm">
+                    {getFormattedDatetimeString(
+                      twitterStatistics.tweetDetails?.timePosted
+                    )}
                   </span>
                 </AnalyzeDataKVBox>
 
@@ -260,7 +279,12 @@ export default function Home() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  <div className="w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1" style={{ backgroundImage: `url(${media.image})` }}></div>
+                                  <div
+                                    className="w-[100px] h-[100px] lg:w-[300px] lg:h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
+                                    style={{
+                                      backgroundImage: `url(${media.image})`,
+                                    }}
+                                  ></div>
                                 </a>
                               );
                             } else if (media.videoPoster) {
@@ -270,7 +294,9 @@ export default function Home() {
                                   className="flex items-center justify-center w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  style={{ backgroundImage: `url(${media.videoPoster})` }}
+                                  style={{
+                                    backgroundImage: `url(${media.videoPoster})`,
+                                  }}
                                 >
                                   <i class="fa-solid fa-play text-primary opacity-80 text-[40px]"></i>
                                 </a>
@@ -282,52 +308,125 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div id="tweet-interaction">
-                  <AnalyzeDataKeyBox title={"Tweet Interaction"} />
-                  <div id="tweet-interaction-box">
-                    <div className="p-5 bg-gray-900 text-white">
-                      <AnalyzeDataKVBox name={"Views"}>
-                        <span>
-                          <i class="fa-solid fa-eye"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.views}
-                        </span>
-                      </AnalyzeDataKVBox>
-
-                      <AnalyzeDataKVBox name={"Retweets"}>
-                        <span>
-                          <i class="fa-solid fa-retweet"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.retweets}
-                        </span>
-                      </AnalyzeDataKVBox>
-
-                      <AnalyzeDataKVBox name={"Quote Tweets"}>
-                        <span>
-                          <i class="fa-solid fa-quote-left"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.quoteTweets}
-                        </span>
-                      </AnalyzeDataKVBox>
-
-                      <AnalyzeDataKVBox name={"Likes"}>
-                        <span>
-                          <i class="fa-solid fa-thumbs-up"></i> {twitterStatistics.tweetDetails?.tweetInteraction?.likes}
-                        </span>
-                      </AnalyzeDataKVBox>
-                    </div>
-                  </div>
-                </div>
-
                 <div id="tweet-replies">
-                  <button onClick={() => setShowReplies(!showReplies)}>
+                  <button
+                    onClick={() => setShowReplies(!showReplies)}
+                    className={`${showReplies === null
+                      ? "animate-[pulse_2s_ease-in-out_infinite]"
+                      : ""
+                      } border border-gray-400 bg-primary text-white rounded p-2 mt-5 w-full font-semibold text-[1.5rem]`}
+                  >
+                    <i class="fa-solid fa-comments mr-2"></i>
                     <AnalyzeDataKeyBox title={"Replies"} />
                     <button className="ml-2">
-                      {showReplies ? <i class="fa-solid fa-chevron-down"></i> : <i class="fa-solid fa-chevron-up"></i>}
+                      {showReplies ? (
+                        <i class="fa-solid fa-chevron-down"></i>
+                      ) : (
+                        <i class={`fa-solid fa-chevron-up`}></i>
+                      )}
                     </button>
                   </button>
-                  {showReplies && <div id="tweet-replies-container" className="animate__animated animate__slideInUp animate__faster">
-                    {Array.isArray(twitterStatistics.tweetDetails?.tweetReplies) &&
-                      twitterStatistics.tweetDetails?.tweetReplies.map((reply, index) => {
-                        return <TwitterReplyBox key={index} reply={reply} index={index} />
-                      })
-                    }
-                  </div>}
+                  {showReplies && (
+                    <div
+                      id="tweet-replies-container"
+                      className="animate__animated animate__slideInUp animate__faster"
+                    >
+                      {Array.isArray(
+                        twitterStatistics.tweetDetails?.tweetReplies
+                      ) &&
+                        twitterStatistics.tweetDetails?.tweetReplies.map(
+                          (reply, index) => {
+                            return (
+                              <TwitterReplyBox
+                                key={index}
+                                reply={reply}
+                                index={index}
+                              />
+                            );
+                          }
+                        )}
+                    </div>
+                  )}
                 </div>
+              </div>
+            </div>
+            <div id="interaction-analysis" className="w-full lg:w-1/3 lg:pl-5">
+              <div id="tweet-interaction">
+                <div id="tweet-interaction-box">
+                  <div className="p-5 bg-gray-900 text-white">
+                    <h2 className="text-[1.5rem] text-primary mb-2">
+                      Tweet Interaction
+                    </h2>
+                    <AnalyzeDataKVBox name={"Views"}>
+                      <span>
+                        <i class="fa-solid fa-eye"></i>{" "}
+                        {
+                          twitterStatistics.tweetDetails?.tweetInteraction
+                            ?.views
+                        }
+                      </span>
+                    </AnalyzeDataKVBox>
+
+                    <AnalyzeDataKVBox name={"Retweets"}>
+                      <span>
+                        <i class="fa-solid fa-retweet"></i>{" "}
+                        {
+                          twitterStatistics.tweetDetails?.tweetInteraction
+                            ?.retweets
+                        }
+                      </span>
+                    </AnalyzeDataKVBox>
+
+                    <AnalyzeDataKVBox name={"Quote Tweets"}>
+                      <span>
+                        <i class="fa-solid fa-quote-left"></i>{" "}
+                        {
+                          twitterStatistics.tweetDetails?.tweetInteraction
+                            ?.quoteTweets
+                        }
+                      </span>
+                    </AnalyzeDataKVBox>
+
+                    <AnalyzeDataKVBox name={"Likes"}>
+                      <span>
+                        <i class="fa-solid fa-thumbs-up"></i>{" "}
+                        {
+                          twitterStatistics.tweetDetails?.tweetInteraction
+                            ?.likes
+                        }
+                      </span>
+                    </AnalyzeDataKVBox>
+                  </div>
+                </div>
+              </div>
+              <div
+                id="twitter-trending-hastags-container"
+                className="mt-5 bg-gray-900 text-white p-5"
+              >
+                {/* {JSON.stringify(trendingHashtags)} */}
+                <h2 className="text-[1.5rem] text-primary mb-2">
+                  Current Trending
+                </h2>
+
+                {Array.isArray(trendingHashtags) &&
+                  trendingHashtags.map((trendingInfo) => {
+                    return (
+                      <div className="mb-5">
+                        <div className="font-medium text-[1.2rem] text-yellow-400">
+                          {trendingInfo.trendingLable}
+                        </div>
+                        <a
+                          className="hover:underline"
+                          href={trendingInfo.trendingURLSearch}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {trendingInfo.trendingHashtag}
+                        </a>
+                        <div>{trendingInfo.trendingTweetCount}</div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           </div>
