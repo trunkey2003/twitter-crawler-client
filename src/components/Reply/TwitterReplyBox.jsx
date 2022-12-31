@@ -123,15 +123,15 @@ export default function TwitterReplyBox({ reply, index }) {
               </span>
             </AnalyzeDataKVBox>
 
-            <AnalyzeDataKVBox name={"Retweets"}>
-              <span>
-                <i class="fa-solid fa-retweet"></i> {reply.tweetDetails?.tweetInteraction?.retweets}
-              </span>
-            </AnalyzeDataKVBox>
-
             <AnalyzeDataKVBox name={"Replies"}>
               <span>
                 <i class="fa-solid fa-reply"></i> {reply.tweetDetails?.tweetInteraction?.replies}
+              </span>
+            </AnalyzeDataKVBox>
+
+            <AnalyzeDataKVBox name={"Retweets"}>
+              <span>
+                <i class="fa-solid fa-retweet"></i> {reply.tweetDetails?.tweetInteraction?.retweets}
               </span>
             </AnalyzeDataKVBox>
 
