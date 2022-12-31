@@ -36,7 +36,7 @@ export default function Home() {
   };
 
   const handleTwitterLinkInputSubmit = () => {
-    if (!handleValidateTwitterLink()) return;
+    if (!handleValidateTwitterLink() || loadingGetResult || loadingSyncData) return;
     setLoadingGetResult(true);
     handleGetFullTwitterAnalysis(twitterLinkInput).finally(() => {
       setLoadingGetResult(false);
@@ -77,6 +77,7 @@ export default function Home() {
   };
 
   const handleSyncDataTwitterPost = () => {
+    if (loadingSyncData || loadingGetResult) return;
     setLoadingSyncData(true);
     handleGetFullTwitterAnalysis(twitterStatistics.tweetUrl).finally(() =>
       setLoadingSyncData(false)
