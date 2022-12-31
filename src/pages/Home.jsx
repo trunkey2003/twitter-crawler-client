@@ -294,7 +294,7 @@ export default function Home() {
                               return (
                                 <a
                                   href={twitterStatistics.tweetUrl}
-                                  className="flex items-center justify-center w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
+                                  className="flex items-center justify-center w-[100px] lg:w-[300px] h-[100px] lg:h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   style={{

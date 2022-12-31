@@ -85,7 +85,7 @@ export default function TwitterReplyBox({ reply, index }) {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <div className="w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1" style={{ backgroundImage: `url(${media.image})` }}></div>
+                        <div className="w-[100px] lg:w-[300px] h-[100px] lg:h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1" style={{ backgroundImage: `url(${media.image})` }}></div>
                       </a>
                     );
                   } else if (media.video) {
@@ -98,7 +98,7 @@ export default function TwitterReplyBox({ reply, index }) {
                     return (
                       <a
                         href={reply.tweetUrl}
-                        className="flex items-center justify-center w-[300px] h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
+                        className="flex items-center justify-center w-[100px] lg:w-[300px] h-[100px] lg:h-[300px] rounded border-2 border-black hover:border-gray-200 bg-center bg-cover bg-no-repeat m-1"
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ backgroundImage: `url(${media.videoPoster})` }}
